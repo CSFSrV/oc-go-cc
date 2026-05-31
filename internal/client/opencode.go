@@ -98,7 +98,12 @@ func (c *OpenCodeClient) ChatCompletion(
 
 	// Set headers
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+endpoint.APIKey)
+	// Anthropic endpoint uses x-api-key; OpenAI endpoint uses Bearer
+	if IsAnthropicModel(modelID) {
+		httpReq.Header.Set("x-api-key", endpoint.APIKey)
+	} else {
+		httpReq.Header.Set("Authorization", "Bearer "+endpoint.APIKey)
+	}
 
 	// Add streaming header if requested
 	if req.Stream != nil && *req.Stream {
@@ -186,8 +191,6 @@ func (c *OpenCodeClient) SendAnthropicRequest(
 
 	// Set headers
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
-	// Incase OpenCode Go expects x-api-key instead
 	httpReq.Header.Set("x-api-key", apiKey)
 
 	// Add streaming header if requested
